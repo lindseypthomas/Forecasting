@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PeopleIQ — Forecasting Module</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --brand-dark: #1e293b;
+      --brand-blue: #3266ad;
+      --brand-green: #059669;
+      --surface: #f8fafc;
+      --card: #ffffff;
+      --border: rgba(0,0,0,0.1);
+      --border-strong: rgba(0,0,0,0.18);
+      --text-primary: #0f172a;
+      --text-secondary: #64748b;
+      --text-muted: #94a3b8;
+      --chip-active-bg: #dbeafe;
+      --chip-active-text: #1e40af;
+      --chip-active-border: #93c5fd;
+      --badge-green-bg: #d1fae5;
+      --badge-green-text: #065f46;
+      --badge-amber-bg: #fef3c7;
+      --badge-amber-text: #92400e;
+      --kpi-up: #059669;
+      --kpi-down: #dc2626;
+      --radius-sm: 6px;
+      --radius-md: 8px;
+      --radius-lg: 12px;
+      --radius-full: 9999px;
+      --font: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    }
+
+    body {
+      font-family: var(--font);
+      background: var(--surface);
+      color: var(--text-primary);
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* ── Shell ─────────────────────────────────────────────────────────── */
+    .shell { display: flex; height: 100vh; }
+
+    /* ── Sidebar ───────────────────────────────────────────────────────── */
+    .sidebar {
+      width: 200px;
+      min-width: 200px;
+      background: var(--brand-dark);
+      display: flex;
+      flex-direction: column;
+    }
+    .sidebar-logo {
+      padding: 20px 16px 16px;
+      border-bottom: 0.5px solid rgba(255,255,255,0.08);
+    }
+    .sidebar-logo .brand { font-size: 13px; font-weight: 600; color: #f8fafc; letter-spacing: 0.05em; }
+    .sidebar-logo .brand-sub { font-size: 11px; color: #64748b; margin-top: 2px; }
+
+    .nav-section { padding: 14px 8px 8px; }
+    .nav-section.nav-bottom { margin-top: auto; border-top: 0.5px solid rgba(255,255,255,0.06); }
+    .nav-label { font-size: 10px; color: #475569; letter-spacing: 0.08em; text-transform: uppercase; padding: 0 8px 6px; display: block; }
+
+    .nav-item {
+      display: flex; align-items: center; gap: 9px;
+      padding: 7px 10px; border-radius: var(--radius-sm);
+      font-size: 13px; color: #94a3b8; cursor: pointer;
+      margin-bottom: 2px; transition: background 0.15s, color 0.15s;
+      text-decoration: none;
+    }
+    .nav-item:hover { background: rgba(255,255,255,0.06); color: #cbd5e1; }
+    .nav-item.active { background: rgba(99,139,211,0.18); color: #93c5fd; }
+    .nav-icon { width: 15px; height: 15px; flex-shrink: 0; opacity: 0.7; }
+    .nav-item.active .nav-icon { opacity: 1; }
+
+    /* ── Main ──────────────────────────────────────────────────────────── */
+    .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; min-width: 0; }
+
+    /* ── Topbar ────────────────────────────────────────────────────────── */
+    .topbar {
+      background: var(--card); border-bottom: 0.5px solid var(--border);
+      padding: 0 24px; height: 52px;
+      display: flex; align-items: center; justify-content: space-between; flex-shrink: 0;
+    }
+    .topbar-left { display: flex; align-items: center; gap: 10px; }
+    .topbar-title { font-size: 15px; font-weight: 600; }
+    .topbar-right { display: flex; align-items: center; gap: 10px; }
+    .last-run { font-size: 12px; color: var(--text-secondary); }
+
+    .tag {
+      font-size: 11px; font-weight: 600; padding: 3px 9px; border-radius: var(--radius-full);
+    }
+    .tag-blue { background: #dbeafe; color: #1e40af; }
+    .tag-green { background: #d1fae5; color: #065f46; }
+
+    /* ── Buttons ───────────────────────────────────────────────────────── */
+    .btn {
+      padding: 7px 16px; font-size: 12px; font-weight: 500;
+      border-radius: var(--radius-md); cursor: pointer; border: none;
+      transition: opacity 0.15s, background 0.15s; font-family: var(--font);
+    }
+    .btn-primary { background: var(--brand-dark); color: #f8fafc; }
+    .btn-primary:hover { opacity: 0.88; }
+    .btn-outline {
+      background: transparent; color: var(--text-secondary);
+      border: 0.5px solid var(--border-strong);
+    }
+    .btn-outline:hover { background: var(--surface); }
+    .btn-sm { padding: 5px 12px; font-size: 11px; }
+
+    /* ── Content ───────────────────────────────────────────────────────── */
+    .content { flex: 1; overflow-y: auto; padding: 20px 24px; display: flex; gap: 20px; }
+
+    /* ── Controls panel ────────────────────────────────────────────────── */
+    .controls-panel { width: 260px; min-width: 260px; display: flex; flex-direction: column; gap: 14px; }
+
+    .panel-card {
+      background: var(--card); border: 0.5px solid var(--border);
+      border-radius: var(--radius-lg); padding: 16px;
+    }
+    .panel-title {
+      font-size: 10px; font-weight: 700; color: var(--text-secondary);
+      letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 12px;
+    }
+    .panel-hint { font-size: 11px; color: var(--text-secondary); line-height: 1.55; margin-bottom: 10px; }
+
+    .field-group { margin-bottom: 12px; }
+    .field-group:last-child { margin-bottom: 0; }
+    .field-label { display: block; font-size: 12px; color: var(--text-secondary); margin-bottom: 5px; }
+
+    select, input[type="number"] {
+      width: 100%; padding: 7px 10px; font-size: 13px;
+      border: 0.5px solid var(--border-strong); border-radius: var(--radius-sm);
+      background: var(--surface); color: var(--text-primary);
+      font-family: var(--font); appearance: auto;
+    }
+    select:focus, input[type="number"]:focus { outline: none; border-color: var(--brand-blue); }
+
+    /* ── Chips ─────────────────────────────────────────────────────────── */
+    .chip-row { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+    .chip {
+      font-size: 11px; padding: 4px 10px; border-radius: var(--radius-full);
+      border: 0.5px solid var(--border); background: var(--surface);
+      color: var(--text-secondary); cursor: pointer; transition: all 0.15s; user-select: none;
+    }
+    .chip:hover { border-color: var(--brand-blue); }
+    .chip.active { background: var(--chip-active-bg); color: var(--chip-active-text); border-color: var(--chip-active-border); }
+
+    /* ── Horizon buttons ───────────────────────────────────────────────── */
+    .horizon-btns {
+      display: flex; border: 0.5px solid var(--border-strong);
+      border-radius: var(--radius-sm); overflow: hidden; margin-bottom: 14px;
+    }
+    .horizon-btn {
+      flex: 1; padding: 7px 4px; font-size: 12px; font-weight: 500;
+      text-align: center; background: var(--surface); color: var(--text-secondary);
+      cursor: pointer; border: none; border-right: 0.5px solid var(--border-strong);
+      transition: all 0.15s; font-family: var(--font);
+    }
+    .horizon-btn:last-child { border-right: none; }
+    .horizon-btn.active { background: var(--brand-dark); color: #f8fafc; }
+    .horizon-btn:hover:not(.active) { background: #f1f5f9; }
+
+    /* ── CI slider ─────────────────────────────────────────────────────── */
+    .ci-slider-row { display: flex; align-items: center; gap: 10px; margin-top: 6px; }
+    .ci-value { font-size: 12px; font-weight: 600; min-width: 34px; text-align: right; }
+    input[type="range"] {
+      flex: 1; accent-color: var(--brand-blue); cursor: pointer; height: 4px;
+    }
+
+    /* ── Adjustments ───────────────────────────────────────────────────── */
+    .adj-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+    .adj-month { font-size: 12px; color: var(--text-secondary); width: 52px; flex-shrink: 0; }
+    .adj-input { flex: 1; padding: 5px 8px; font-size: 12px; text-align: right; width: auto; }
+    .divider { height: 0.5px; background: var(--border); margin: 10px 0; }
+    .adj-actions { display: flex; gap: 8px; }
+    .adj-actions .btn { flex: 1; }
+
+    /* ── Chart panel ───────────────────────────────────────────────────── */
+    .chart-panel { flex: 1; display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+
+    /* ── KPI cards ─────────────────────────────────────────────────────── */
+    .kpi-row { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+    .kpi-card {
+      background: var(--card); border: 0.5px solid var(--border);
+      border-radius: var(--radius-lg); padding: 14px 16px;
+    }
+    .kpi-label { font-size: 11px; color: var(--text-secondary); margin-bottom: 4px; }
+    .kpi-value { font-size: 22px; font-weight: 600; margin-bottom: 3px; }
+    .kpi-delta { font-size: 11px; }
+    .kpi-up { color: var(--kpi-up); }
+    .kpi-down { color: var(--kpi-down); }
+    .kpi-neutral { color: var(--text-secondary); }
+
+    /* ── Main chart card ───────────────────────────────────────────────── */
+    .chart-card {
+      background: var(--card); border: 0.5px solid var(--border);
+      border-radius: var(--radius-lg); padding: 20px; flex: 1;
+      display: flex; flex-direction: column;
+    }
+    .chart-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 16px; }
+    .chart-title { font-size: 14px; font-weight: 600; margin-bottom: 2px; }
+    .chart-sub { font-size: 12px; color: var(--text-secondary); }
+    .chart-header-right { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
+
+    .badge-row { display: flex; gap: 6px; }
+    .badge { font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: var(--radius-full); }
+    .badge-green { background: var(--badge-green-bg); color: var(--badge-green-text); }
+    .badge-amber { background: var(--badge-amber-bg); color: var(--badge-amber-text); }
+
+    .legend-row { display: flex; gap: 14px; flex-wrap: wrap; justify-content: flex-end; }
+    .legend-item { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--text-secondary); }
+    .legend-line { display: inline-block; width: 20px; height: 3px; border-radius: 2px; flex-shrink: 0; }
+    .legend-dash { display: inline-block; width: 20px; border-top: 2.5px dashed; flex-shrink: 0; }
+    .legend-ci { display: inline-block; width: 20px; height: 10px; border-radius: 2px; background: rgba(99,160,255,0.2); flex-shrink: 0; }
+
+    .chart-wrap { position: relative; width: 100%; height: 260px; flex: 1; }
+    .chart-wrap canvas { width: 100% !important; height: 100% !important; }
+
+    /* ── Insights ──────────────────────────────────────────────────────── */
+    .insight-row { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+    .insight-card {
+      background: var(--surface); border: 0.5px solid var(--border);
+      border-radius: var(--radius-md); padding: 12px 14px;
+    }
+    .insight-value { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+    .insight-text { font-size: 12px; color: var(--text-secondary); line-height: 1.5; }
+  </style>
+</head>
+<body>
+
+<div class="shell">
+
+  <!-- ── Sidebar ─────────────────────────────────────────────────────────── -->
+  <nav class="sidebar">
+    <div class="sidebar-logo">
+      <div class="brand">PeopleIQ</div>
+      <div class="brand-sub">Analytics Platform</div>
+    </div>
+    <div class="nav-section">
+      <span class="nav-label">Analytics</span>
+      <div class="nav-item">
+        <svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M3 13.5l5-5 4 4 5-6 4 4"/></svg>
+        Overview
+      </div>
+      <div class="nav-item active">
+        <svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M2.25 18L9 11.25l4.306 4.306a11.95 11.95 0 015.814-5.518l2.74-1.22m0 0l-5.94-2.281m5.94 2.28l-2.28 5.941"/></svg>
+        Forecasting
+      </div>
+      <div class="nav-item">
+        <svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M8 2v4M16 2v4M3 10h18"/></svg>
+        Headcount
+      </div>
+      <div class="nav-item">
+        <svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z"/></svg>
+        Workforce
+      </div>
+      <div class="nav-item">
+        <svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M9 14.25l6-6m4.5-3.493V21.75l-3.75-1.5-3.75 1.5-3.75-1.5-3.75 1.5V4.757c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0111.186 0c1.1.128 1.907 1.077 1.907 2.185z"/></svg>
+        Attrition
+      </div>
+    </div>
+    <div class="nav-section nav-bottom">
+      <div class="nav-item">
+        <svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.431l-1.003.827c-.293.241-.438.613-.431.992a6.759 6.759 0 010 .255c-.007.378.138.75.43.99l1.005.828c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 01-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 01-.22.128c-.331.183-.581.495-.644.869l-.213 1.28c-.09.543-.56.941-1.11.941h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 01-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 01-1.369-.49l-1.297-2.247a1.125 1.125 0 01.26-1.431l1.004-.827c.292-.24.437-.613.43-.992a6.932 6.932 0 010-.255c.007-.378-.138-.75-.43-.99l-1.004-.828a1.125 1.125 0 01-.26-1.43l1.297-2.247a1.125 1.125 0 011.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.281z"/><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+        Settings
+      </div>
+    </div>
+  </nav>
+
+  <!-- ── Main ────────────────────────────────────────────────────────────── -->
+  <div class="main">
+
+    <header class="topbar">
+      <div class="topbar-left">
+        <span class="topbar-title">Metric Forecasting</span>
+        <span class="tag tag-blue">ML-powered</span>
+        <span class="tag tag-green">Seasonal</span>
+      </div>
+      <div class="topbar-right">
+        <span class="last-run" id="lastRun">Last run: —</span>
+        <button class="btn btn-outline btn-sm">Export</button>
+        <button class="btn btn-primary btn-sm" onclick="runForecast()">Run Forecast</button>
+      </div>
+    </header>
+
+    <div class="content">
+
+      <!-- ── Controls ──────────────────────────────────────────────────── -->
+      <aside class="controls-panel">
+
+        <div class="panel-card">
+          <div class="panel-title">Metric</div>
+          <div class="field-group">
+            <label class="field-label">Select metric</label>
+            <select id="metricSelect" onchange="runForecast()">
+              <option value="headcount">Headcount</option>
+              <option value="attrition">Attrition rate (%)</option>
+              <option value="hires">New hires</option>
+              <option value="tenure">Avg tenure (months)</option>
+              <option value="engagement">Engagement score</option>
+            </select>
+          </div>
+          <div class="field-group">
+            <label class="field-label">Aggregation</label>
+            <select onchange="runForecast()">
+              <option>Monthly</option>
+              <option>Quarterly</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="panel-card">
+          <div class="panel-title">Filters</div>
+          <div class="field-group">
+            <label class="field-label">Department</label>
+            <select id="deptSelect" onchange="runForecast()">
+              <option>All departments</option>
+              <option>Engineering</option>
+              <option>Sales</option>
+              <option>Operations</option>
+              <option>HR</option>
+            </select>
+          </div>
+          <div class="field-group">
+            <label class="field-label">Location</label>
+            <div class="chip-row" id="locChips">
+              <span class="chip active" onclick="toggleChip(this,'loc')">All</span>
+              <span class="chip" onclick="toggleChip(this,'loc')">UK</span>
+              <span class="chip" onclick="toggleChip(this,'loc')">US</span>
+              <span class="chip" onclick="toggleChip(this,'loc')">EMEA</span>
+            </div>
+          </div>
+          <div class="field-group">
+            <label class="field-label">Employment type</label>
+            <div class="chip-row" id="empChips">
+              <span class="chip active" onclick="toggleChip(this,'emp')">All</span>
+              <span class="chip" onclick="toggleChip(this,'emp')">FT</span>
+              <span class="chip" onclick="toggleChip(this,'emp')">PT</span>
+              <span class="chip" onclick="toggleChip(this,'emp')">Contract</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel-card">
+          <div class="panel-title">Forecast horizon</div>
+          <div class="horizon-btns">
+            <button class="horizon-btn" onclick="setHorizon(3,this)">3M</button>
+            <button class="horizon-btn active" onclick="setHorizon(6,this)">6M</button>
+            <button class="horizon-btn" onclick="setHorizon(12,this)">12M</button>
+            <button class="horizon-btn" onclick="setHorizon(24,this)">2Y</button>
+          </div>
+          <label class="field-label">Confidence interval</label>
+          <div class="ci-slider-row">
+            <input type="range" min="80" max="99" value="95" id="ciSlider" oninput="document.getElementById('ciVal').textContent=this.value+'%'; runForecast()">
+            <span class="ci-value" id="ciVal">95%</span>
+          </div>
+        </div>
+
+        <div class="panel-card">
+          <div class="panel-title">Adjustments</div>
+          <div class="panel-hint">Override forecast values. Positive = increase, negative = decrease.</div>
+          <div id="adjRows"></div>
+          <div class="divider"></div>
+          <div class="adj-actions">
+            <button class="btn btn-outline btn-sm" onclick="clearAdj()">Clear all</button>
+            <button class="btn btn-primary btn-sm" onclick="applyAdj()">Apply</button>
+          </div>
+        </div>
+
+      </aside>
+
+      <!-- ── Chart panel ────────────────────────────────────────────────── -->
+      <section class="chart-panel">
+
+        <div class="kpi-row">
+          <div class="kpi-card">
+            <div class="kpi-label">Current value</div>
+            <div class="kpi-value" id="kpiCurrent">—</div>
+            <div class="kpi-delta kpi-neutral" id="kpiCurrentLabel">—</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Forecast end</div>
+            <div class="kpi-value" id="kpiForecast">—</div>
+            <div class="kpi-delta" id="kpiForecastDelta">—</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Adjusted end</div>
+            <div class="kpi-value" id="kpiAdjusted">—</div>
+            <div class="kpi-delta" id="kpiAdjustedDelta">—</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Model accuracy</div>
+            <div class="kpi-value" id="kpiAccuracy">—</div>
+            <div class="kpi-delta kpi-neutral">12-mo backtest</div>
+          </div>
+        </div>
+
+        <div class="chart-card">
+          <div class="chart-header">
+            <div>
+              <div class="chart-title" id="chartTitle">Headcount forecast — All departments</div>
+              <div class="chart-sub" id="chartSub">Historical data + 6-month ML forecast with seasonal decomposition</div>
+            </div>
+            <div class="chart-header-right">
+              <div class="badge-row">
+                <span class="badge badge-green">Seasonal adj.</span>
+                <span class="badge badge-amber" id="ciBadge">95% CI</span>
+              </div>
+              <div class="legend-row">
+                <div class="legend-item"><span class="legend-line" style="background:#3266ad;"></span>Historical</div>
+                <div class="legend-item"><span class="legend-dash" style="border-color:#3266ad;opacity:0.6;"></span>Forecast</div>
+                <div class="legend-item"><span class="legend-dash" style="border-color:#059669;"></span>Adjusted</div>
+                <div class="legend-item"><span class="legend-ci"></span>CI band</div>
+              </div>
+            </div>
+          </div>
+          <div class="chart-wrap">
+            <canvas id="forecastChart" role="img" aria-label="Forecasting line chart with historical data, ML forecast, confidence interval and adjustment lines"></canvas>
+          </div>
+        </div>
+
+        <div class="insight-row" id="insightRow"></div>
+
+      </section>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ── Mock data ──────────────────────────────────────────────────────────────
+  const METRICS = {
+    headcount: {
+      base: 2847, trend: 18, accuracy: '91.4%',
+      insights: [
+        { value: '+18', text: 'Peak hiring month: Mar 2025. Seasonal uplift detected from historical patterns.' },
+        { value: 'Q1 dip', text: 'Seasonal attrition spike expected Jan–Feb. Model accounts for post-bonus exits.' },
+        { value: '±94', text: '95% confidence interval width at 6-month horizon. Narrows with shorter windows.' },
+        { value: '', text: 'Cumulative adjustment applied. Adjusted forecast diverges from baseline from Dec 2024.' }
+      ]
+    },
+    attrition: {
+      base: 12.4, trend: -0.3, accuracy: '87.2%',
+      insights: [
+        { value: 'Oct peak', text: 'Attrition historically peaks Oct–Nov. Pre-year-end exits drive seasonal spike.' },
+        { value: 'Q1 stable', text: 'Q1 stabilisation: attrition reduces Jan–Mar as leavers secured year-end bonuses.' },
+        { value: '±1.8%', text: 'Confidence interval narrows significantly within a 3-month horizon.' },
+        { value: '', text: 'Adjustments reflect planned retention programme impact from Q1 2025.' }
+      ]
+    },
+    hires: {
+      base: 142, trend: 6, accuracy: '84.6%',
+      insights: [
+        { value: '+34', text: 'March hiring surge: campus grad cycle drives strong Q1 intake.' },
+        { value: 'Summer dip', text: 'Summer slowdown expected Jul–Aug as hiring pauses pre-review cycle.' },
+        { value: '±22', text: 'Wider CI reflects higher variance in hiring vs headcount data.' },
+        { value: '', text: 'Manual adjustments reflect approved headcount plan for H1 2025.' }
+      ]
+    },
+    tenure: {
+      base: 38, trend: 0.8, accuracy: '93.1%',
+      insights: [
+        { value: '+2.1 mo', text: 'Avg tenure rising: retention programmes showing measurable impact since Q3 2023.' },
+        { value: 'Risk cohort', text: 'Long-service cohort (48+ months) accounts for 22% of the workforce.' },
+        { value: '±3.2 mo', text: 'Model confidence is high for tenure — low historical variance.' },
+        { value: '', text: 'Adjusted forecast reflects planned retention incentive rollout in Feb.' }
+      ]
+    },
+    engagement: {
+      base: 74, trend: 0.5, accuracy: '78.9%',
+      insights: [
+        { value: 'Q2 dip', text: 'Engagement historically dips post-performance review cycle in May.' },
+        { value: 'Q3 recovery', text: 'Recovery expected Q3 driven by L&D programme launches.' },
+        { value: '±4.1', text: 'Engagement has the widest CI of all metrics — survey-driven data.' },
+        { value: '', text: 'Adjustment reflects anticipated score uplift from recognition programme.' }
+      ]
+    }
+  };
+
+  const HIST_LABELS = ['Dec 23','Jan 24','Feb 24','Mar 24','Apr 24','May 24','Jun 24','Jul 24','Aug 24','Sep 24','Oct 24','Nov 24'];
+  const FC_LABELS   = ['Dec 24','Jan 25','Feb 25','Mar 25','Apr 25','May 25','Jun 25','Jul 25','Aug 25','Sep 25','Oct 25','Nov 25',
+                       'Dec 25','Jan 26','Feb 26','Mar 26','Apr 26','May 26','Jun 26','Jul 26','Aug 26','Sep 26','Oct 26','Nov 26'];
+  const SEASONAL_H  = [2,-6,-4,8,5,3,-1,-3,2,4,6,3];
+  const SEASONAL_F  = [3,-5,-3,9,4,2,-2,-4,1,3,5,2,3,-5,-3,9,4,2,-2,-4,1,3,5,2];
+
+  let horizon = 6;
+  let adjValues = Array(6).fill(0);
+  let chart = null;
+
+  function genHist(base, trend) {
+    let v = base - trend * HIST_LABELS.length;
+    return SEASONAL_H.map(s => { v += trend + s * (Math.abs(trend) > 1 ? 1 : 0.1); return Math.round(v * 10) / 10; });
+  }
+
+  function genForecast(hist, trend, months) {
+    let v = hist[hist.length - 1];
+    return Array.from({ length: months }, (_, i) => { v += trend + SEASONAL_F[i] * (Math.abs(trend) > 1 ? 0.6 : 0.08); return Math.round(v * 10) / 10; });
+  }
+
+  function setHorizon(n, el) {
+    horizon = n;
+    adjValues = Array(n).fill(0);
+    document.querySelectorAll('.horizon-btn').forEach(b => b.classList.remove('active'));
+    el.classList.add('active');
+    buildAdjRows();
+    runForecast();
+  }
+
+  function toggleChip(el, group) {
+    const row = document.getElementById(group === 'loc' ? 'locChips' : 'empChips');
+    if (el.textContent === 'All') { row.querySelectorAll('.chip').forEach(c => c.classList.remove('active')); el.classList.add('active'); return; }
+    row.querySelector('.chip').classList.remove('active');
+    el.classList.toggle('active');
+    if ([...row.querySelectorAll('.chip')].filter(c => c.classList.contains('active')).length === 0) row.querySelector('.chip').classList.add('active');
+  }
+
+  function buildAdjRows() {
+    const container = document.getElementById('adjRows');
+    container.innerHTML = '';
+    FC_LABELS.slice(0, horizon).forEach((lbl, i) => {
+      const row = document.createElement('div');
+      row.className = 'adj-row';
+      row.innerHTML = `<span class="adj-month">${lbl}</span><input type="number" class="adj-input" id="adj_${i}" value="${adjValues[i] || 0}" step="1">`;
+      container.appendChild(row);
+    });
+  }
+
+  function applyAdj() {
+    for (let i = 0; i < horizon; i++) {
+      const el = document.getElementById('adj_' + i);
+      if (el) adjValues[i] = parseFloat(el.value) || 0;
+    }
+    runForecast();
+  }
+
+  function clearAdj() {
+    adjValues = Array(horizon).fill(0);
+    buildAdjRows();
+    runForecast();
+  }
+
+  function runForecast() {
+    const metricKey = document.getElementById('metricSelect').value;
+    const dept = document.getElementById('deptSelect').value;
+    const ci = parseInt(document.getElementById('ciSlider').value);
+    const m = METRICS[metricKey];
+
+    const hist = genHist(m.base, m.trend);
+    const fc   = genForecast(hist, m.trend, horizon);
+    const adj  = fc.map((v, i) => Math.round((v + (adjValues[i] || 0)) * 10) / 10);
+    const ciW  = m.base * (0.033 * (ci / 95));
+    const ciUp = fc.map(v => Math.round((v + ciW) * 10) / 10);
+    const ciDn = fc.map(v => Math.round((v - ciW) * 10) / 10);
+
+    // Build full label set
+    const labels = [...HIST_LABELS, ...FC_LABELS.slice(0, horizon)];
+
+    // Build series
+    const histSeries = [...hist, ...Array(horizon).fill(null)];
+    const fcSeries   = [...Array(HIST_LABELS.length - 1).fill(null), hist[hist.length - 1], ...fc];
+    const adjSeries  = [...Array(HIST_LABELS.length - 1).fill(null), hist[hist.length - 1], ...adj];
+    const ciUpSeries = [...Array(HIST_LABELS.length).fill(null), ...ciUp];
+    const ciDnSeries = [...Array(HIST_LABELS.length).fill(null), ...ciDn];
+
+    // KPIs
+    const fEnd = fc[horizon - 1];
+    const aEnd = adj[horizon - 1];
+    const fcPct = ((fEnd - m.base) / m.base * 100).toFixed(1);
+    const adjPct = ((aEnd - fEnd) / Math.abs(fEnd) * 100).toFixed(1);
+    const totalAdj = Math.round(adjValues.reduce((a, b) => a + b, 0));
+
+    document.getElementById('kpiCurrent').textContent = m.base.toLocaleString();
+    document.getElementById('kpiCurrentLabel').textContent = `as of ${HIST_LABELS[HIST_LABELS.length - 1]}`;
+    document.getElementById('kpiForecast').textContent = fEnd.toLocaleString();
+    const fdEl = document.getElementById('kpiForecastDelta');
+    fdEl.textContent = (fEnd >= m.base ? '↑ +' : '↓ ') + fcPct + '% vs current';
+    fdEl.className = 'kpi-delta ' + (fEnd >= m.base ? 'kpi-up' : 'kpi-down');
+    document.getElementById('kpiAdjusted').textContent = aEnd.toLocaleString();
+    const adEl = document.getElementById('kpiAdjustedDelta');
+    adEl.textContent = (aEnd >= fEnd ? '↑ +' : '↓ ') + adjPct + '% vs forecast';
+    adEl.className = 'kpi-delta ' + (aEnd >= fEnd ? 'kpi-up' : 'kpi-down');
+    document.getElementById('kpiAccuracy').textContent = m.accuracy;
+
+    document.getElementById('chartTitle').textContent = document.getElementById('metricSelect').options[document.getElementById('metricSelect').selectedIndex].text + ' forecast — ' + dept;
+    document.getElementById('chartSub').textContent = `Historical data + ${horizon}-month ML forecast with seasonal decomposition`;
+    document.getElementById('ciBadge').textContent = ci + '% CI';
+
+    // Insights
+    const insightRow = document.getElementById('insightRow');
+    insightRow.innerHTML = m.insights.map((ins, i) => `
+      <div class="insight-card">
+        <div class="insight-value">${i === 3 ? (totalAdj >= 0 ? '+' : '') + totalAdj : ins.value}</div>
+        <div class="insight-text">${ins.text}</div>
+      </div>`).join('');
+
+    // Last run time
+    const now = new Date();
+    document.getElementById('lastRun').textContent = `Last run: ${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}`;
+
+    // Chart
+    if (chart) chart.destroy();
+    const ctx = document.getElementById('forecastChart').getContext('2d');
+    chart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels,
+        datasets: [
+          { label: 'CI upper', data: ciUpSeries, fill: '+1', backgroundColor: 'rgba(99,160,255,0.12)', borderColor: 'transparent', pointRadius: 0, tension: 0.35 },
+          { label: 'CI lower', data: ciDnSeries, fill: false, borderColor: 'transparent', pointRadius: 0, tension: 0.35 },
+          { label: 'Historical', data: histSeries, borderColor: '#3266ad', backgroundColor: 'transparent', borderWidth: 2, pointRadius: 3, pointBackgroundColor: '#3266ad', tension: 0.35 },
+          { label: 'Forecast',  data: fcSeries,   borderColor: '#3266ad', backgroundColor: 'transparent', borderWidth: 2, borderDash: [5,4], pointRadius: 3, pointBackgroundColor: '#3266ad', tension: 0.35 },
+          { label: 'Adjusted',  data: adjSeries,  borderColor: '#059669', backgroundColor: 'transparent', borderWidth: 2, borderDash: [6,3], pointRadius: 3, pointBackgroundColor: '#059669', tension: 0.35 }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: { mode: 'index', intersect: false },
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: ctx => {
+                if (['CI upper','CI lower'].includes(ctx.dataset.label)) return null;
+                return ctx.dataset.label + ': ' + (ctx.parsed.y !== null ? ctx.parsed.y.toLocaleString() : '—');
+              }
+            }
+          }
+        },
+        scales: {
+          x: { grid: { color: 'rgba(100,100,100,0.08)' }, ticks: { font: { size: 11 }, maxRotation: 35, autoSkip: false } },
+          y: { grid: { color: 'rgba(100,100,100,0.08)' }, ticks: { font: { size: 11 }, callback: v => v.toLocaleString() } }
+        }
+      }
+    });
+  }
+
+  // Initialise
+  buildAdjRows();
+  runForecast();
+</script>
+</body>
+</html>
