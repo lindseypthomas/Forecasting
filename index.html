@@ -560,38 +560,13 @@ function renderDetail() {
             <span>36 months available — forecast ready (min. ${isQ?33:27} required)</span>
           </div>
         </div>
-        <!-- filters -->
+        <!-- filters applied (read-only) -->
         <div class="p-card">
-          <div class="p-title">Filters</div>
-          <div class="fgroup">
-            <label class="field-label">Department</label>
-            <select id="deptSel" onchange="updateAndRender()">
-              <option ${f.dept==='All departments'?'selected':''}>All departments</option>
-              <option ${f.dept==='Engineering'?'selected':''}>Engineering</option>
-              <option ${f.dept==='Sales'?'selected':''}>Sales</option>
-              <option ${f.dept==='Operations'?'selected':''}>Operations</option>
-              <option ${f.dept==='Finance'?'selected':''}>Finance</option>
-              <option ${f.dept==='HR &amp; People'?'selected':''}>HR &amp; People</option>
-            </select>
-          </div>
-          <div class="fgroup">
-            <label class="field-label">Location</label>
-            <div class="chip-row">
-              <span class="chip active" onclick="toggleChip(this)">All</span>
-              <span class="chip" onclick="toggleChip(this)">UK</span>
-              <span class="chip" onclick="toggleChip(this)">US</span>
-              <span class="chip" onclick="toggleChip(this)">EMEA</span>
-              <span class="chip" onclick="toggleChip(this)">APAC</span>
-            </div>
-          </div>
-          <div class="fgroup">
-            <label class="field-label">Employment type</label>
-            <div class="chip-row">
-              <span class="chip active" onclick="toggleChip(this)">All</span>
-              <span class="chip" onclick="toggleChip(this)">Full-time</span>
-              <span class="chip" onclick="toggleChip(this)">Part-time</span>
-              <span class="chip" onclick="toggleChip(this)">Contract</span>
-            </div>
+          <div class="p-title">Filters applied</div>
+          <div class="filter-readonly-list">
+            ${(f.filters && f.filters.length > 0)
+              ? f.filters.map(fl => `<div class="filter-readonly-row"><span class="filter-readonly-if">If</span><span class="filter-readonly-field">${fl.field}</span><span class="filter-readonly-op">${fl.is} ${fl.operator}</span><span class="filter-readonly-val">${fl.value}</span></div>`).join('')
+              : '<div style="font-size:11px;color:var(--text3);font-style:italic;">No filters applied</div>'}
           </div>
         </div>
         <!-- horizon -->
@@ -621,15 +596,6 @@ function renderDetail() {
           <div class="adj-btns">
             <button class="btn btn-outline btn-sm" onclick="clearAdj()">Clear all</button>
             <button class="btn btn-accent btn-sm" onclick="applyAdj()">Apply</button>
-          </div>
-        </div>
-        <!-- Filters (read-only) -->
-        <div class="p-card">
-          <div class="p-title">Filters applied</div>
-          <div class="filter-readonly-list" id="detailFilterList">
-            ${(f.filters && f.filters.length > 0)
-              ? f.filters.map(fl => `<div class="filter-readonly-row"><span class="filter-readonly-if">If</span><span class="filter-readonly-field">${fl.field}</span><span class="filter-readonly-op">${fl.is} ${fl.operator}</span><span class="filter-readonly-val">${fl.value}</span></div>`).join('')
-              : '<div style="font-size:11px;color:var(--text3);font-style:italic;">No filters applied</div>'}
           </div>
         </div>
       </div>
@@ -748,7 +714,7 @@ function renderChart(){
   const cfg = METRICS_CFG[f.metric] || METRICS_CFG.headcount;
   const isQ = f.agg==='quarterly';
   const ci  = parseInt((document.getElementById('ciSlider')||{value:'95'}).value);
-  const dept= (document.getElementById('deptSel')||{value:f.dept}).value;
+  const dept= f.dept;
   const metricKey = (document.getElementById('metricSel')||{value:f.metric}).value;
   const mc  = METRICS_CFG[metricKey] || cfg;
 
