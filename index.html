@@ -227,7 +227,47 @@
     .wizard-field select,.wizard-field input{width:100%;padding:9px 11px;font-size:13px;border:0.5px solid var(--border-mid);border-radius:var(--r-md);background:var(--surface);color:var(--text);font-family:var(--font);}
     .wizard-field select:focus,.wizard-field input:focus{outline:none;border-color:var(--brand-mid);box-shadow:0 0 0 3px rgba(36,88,160,.08);}
     .wizard-note{font-size:11px;color:var(--text3);margin-top:6px;line-height:1.55;}
-    .wizard-actions{display:flex;gap:10px;margin-top:24px;justify-content:flex-end;}
+    .wizard-tabs{display:flex;border-bottom:0.5px solid var(--border-mid);margin-bottom:22px;gap:0;}
+    .wizard-tab{padding:9px 18px;font-size:13px;font-weight:500;color:var(--text3);cursor:pointer;border:none;background:transparent;border-bottom:2px solid transparent;margin-bottom:-0.5px;transition:all .15s;font-family:var(--font);}
+    .wizard-tab:hover{color:var(--text2);}
+    .wizard-tab.active{color:var(--brand-mid);border-bottom-color:var(--brand-mid);}
+    .wizard-tab-panel{display:none;}.wizard-tab-panel.active{display:block;}
+    .filter-hint{font-size:12px;color:var(--text3);font-style:italic;margin-bottom:12px;}
+    .filter-list{display:flex;flex-direction:column;gap:6px;margin-bottom:14px;min-height:40px;}
+    .filter-row{display:flex;align-items:center;gap:8px;background:var(--surface);border:0.5px solid var(--border-mid);border-radius:var(--r-md);padding:10px 12px;}
+    .filter-row-if{font-size:12px;font-weight:600;color:var(--text3);min-width:14px;flex-shrink:0;}
+    .filter-row-field{font-size:12.5px;font-weight:500;color:var(--text);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+    .filter-row-op{font-size:11.5px;color:var(--text2);flex-shrink:0;}
+    .filter-row-val{font-size:12.5px;color:var(--brand-mid);font-weight:500;flex-shrink:0;max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+    .filter-remove{width:22px;height:22px;border-radius:var(--r-sm);border:none;background:transparent;color:var(--text3);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s;margin-left:4px;}
+    .filter-remove:hover{background:var(--danger-light);color:var(--danger);}
+    .filter-remove svg{width:12px;height:12px;}
+    .filter-empty{font-size:12px;color:var(--text3);font-style:italic;padding:16px 0;}
+    .btn-add-filter{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;font-size:13px;font-weight:600;background:#2eaadc;color:#fff;border:none;border-radius:var(--r-md);cursor:pointer;font-family:var(--font);transition:opacity .15s;}
+    .btn-add-filter:hover{opacity:.88;}
+    .btn-add-filter svg{width:14px;height:14px;}
+    .af-modal-bg{position:fixed;inset:0;background:rgba(15,31,53,.4);display:flex;align-items:center;justify-content:center;z-index:200;}
+    .af-modal{background:var(--card);border-radius:var(--r-lg);width:560px;box-shadow:var(--sh-md);overflow:hidden;}
+    .af-modal-head{background:#dde3ea;padding:14px 18px;display:flex;align-items:center;justify-content:space-between;}
+    .af-modal-title{font-size:14px;font-weight:600;color:var(--text);}
+    .af-modal-close{width:26px;height:26px;border:none;background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;border-radius:var(--r-sm);color:var(--text2);transition:all .15s;}
+    .af-modal-close:hover{background:rgba(0,0,0,.08);}
+    .af-modal-close svg{width:15px;height:15px;}
+    .af-modal-body{padding:20px 18px;}
+    .af-filter-row{display:flex;align-items:center;gap:8px;background:var(--card);border:0.5px solid var(--border-mid);border-radius:var(--r-md);padding:12px 14px;}
+    .af-if-label{font-size:13px;font-weight:600;color:var(--text2);min-width:16px;flex-shrink:0;}
+    .af-select{padding:8px 10px;font-size:12.5px;border:0.5px solid var(--border-mid);border-radius:var(--r-sm);background:var(--card);color:var(--text);font-family:var(--font);cursor:pointer;}
+    .af-select:focus{outline:none;border-color:var(--brand-mid);}
+    .af-select-field{flex:1;}
+    .af-modal-foot{padding:14px 18px;display:flex;justify-content:flex-end;border-top:0.5px solid var(--border);}
+    .btn-af-add{padding:8px 22px;font-size:13px;font-weight:600;background:var(--brand);color:#fff;border:none;border-radius:var(--r-md);cursor:pointer;font-family:var(--font);}
+    .btn-af-add:hover{background:var(--brand-hover);}
+    .filter-readonly-list{display:flex;flex-direction:column;gap:6px;}
+    .filter-readonly-row{display:flex;align-items:center;gap:8px;background:var(--surface);border:0.5px solid var(--border);border-radius:var(--r-md);padding:9px 12px;font-size:12px;}
+    .filter-readonly-if{font-weight:600;color:var(--text3);min-width:14px;}
+    .filter-readonly-field{font-weight:500;color:var(--text);flex:1;}
+    .filter-readonly-op{color:var(--text2);}
+    .filter-readonly-val{color:var(--brand-mid);font-weight:500;}
   </style>
 </head>
 <body>
@@ -314,6 +354,51 @@
   </div>
 </div>
 
+<!-- ── Add Filter Modal ───────────────────────────────────────────────────── -->
+<div class="af-modal-bg" id="afModalBg" style="display:none;" onclick="closeAddFilterModal(event)">
+  <div class="af-modal">
+    <div class="af-modal-head">
+      <span class="af-modal-title">Add filter</span>
+      <button class="af-modal-close" onclick="closeAddFilterModal()">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div class="af-modal-body">
+      <div class="af-filter-row">
+        <span class="af-if-label">If</span>
+        <select class="af-select af-select-field" id="afField" onchange="onAfFieldChange()">
+          <option value="">Select a field</option>
+          <option value="Department">Department</option>
+          <option value="Location">Location</option>
+          <option value="Employment type">Employment type</option>
+          <option value="Job level">Job level</option>
+          <option value="Gender">Gender</option>
+          <option value="Age band">Age band</option>
+          <option value="Tenure band">Tenure band</option>
+          <option value="Manager">Manager</option>
+          <option value="Cost centre">Cost centre</option>
+        </select>
+        <select class="af-select" id="afIs" style="min-width:56px;">
+          <option value="is">Is</option>
+          <option value="is not">Is not</option>
+        </select>
+        <select class="af-select" id="afOperator" style="min-width:100px;">
+          <option value="Equal to">Equal to</option>
+          <option value="Not equal to">Not equal to</option>
+          <option value="Contains">Contains</option>
+          <option value="Starts with">Starts with</option>
+        </select>
+        <select class="af-select af-select-field" id="afValue">
+          <option value="">Select a value</option>
+        </select>
+      </div>
+    </div>
+    <div class="af-modal-foot">
+      <button class="btn-af-add" onclick="confirmAddFilter()">Add</button>
+    </div>
+  </div>
+</div>
+
 <!-- ── Modal ───────────────────────────────────────────────────────────────── -->
 <div class="modal-bg" id="modalBg" onclick="closeMod(event)">
   <div class="modal">
@@ -328,15 +413,15 @@
 // ─── Forecast data ────────────────────────────────────────────────────────
 const FORECASTS = [
   // Mine
-  { id:1, name:'Headcount — All Departments', metric:'headcount', dept:'All departments', agg:'monthly', horizon:12, ci:95, source:'Report Designer', owner:'me',  shared:false, updatedDays:0,  color:'#2458a0', dotColor:'#2458a0' },
-  { id:2, name:'Engineering Attrition Risk', metric:'attrition',  dept:'Engineering',     agg:'monthly', horizon:6,  ci:90, source:'Insight',         owner:'me',  shared:false, updatedDays:2,  color:'#0ea472', dotColor:'#0ea472' },
-  { id:3, name:'Quarterly New Hires Q1–Q4',  metric:'hires',     dept:'All departments', agg:'quarterly',horizon:4,  ci:95, source:'Dashboard Report', owner:'me',  shared:false, updatedDays:7,  color:'#f59e0b', dotColor:'#f59e0b' },
-  { id:4, name:'Sales Headcount 6M',         metric:'headcount', dept:'Sales',            agg:'monthly', horizon:6,  ci:80, source:'My Metrics',       owner:'me',  shared:false, updatedDays:14, color:'#6366f1', dotColor:'#6366f1' },
+  { id:1, name:'Headcount — All Departments', metric:'headcount', dept:'All departments', agg:'monthly', horizon:12, ci:95, source:'Report Designer', owner:'me',  shared:false, updatedDays:0,  color:'#2458a0', dotColor:'#2458a0', filters:[{field:'Department',is:'is',operator:'Equal to',value:'All departments'},{field:'Employment type',is:'is',operator:'Equal to',value:'Full-time'}] },
+  { id:2, name:'Engineering Attrition Risk', metric:'attrition',  dept:'Engineering',     agg:'monthly', horizon:6,  ci:90, source:'Insight',         owner:'me',  shared:false, updatedDays:2,  color:'#0ea472', dotColor:'#0ea472', filters:[{field:'Department',is:'is',operator:'Equal to',value:'Engineering'}] },
+  { id:3, name:'Quarterly New Hires Q1–Q4',  metric:'hires',     dept:'All departments', agg:'quarterly',horizon:4,  ci:95, source:'Dashboard Report', owner:'me',  shared:false, updatedDays:7,  color:'#f59e0b', dotColor:'#f59e0b', filters:[] },
+  { id:4, name:'Sales Headcount 6M',         metric:'headcount', dept:'Sales',            agg:'monthly', horizon:6,  ci:80, source:'My Metrics',       owner:'me',  shared:false, updatedDays:14, color:'#6366f1', dotColor:'#6366f1', filters:[{field:'Department',is:'is',operator:'Equal to',value:'Sales'},{field:'Location',is:'is',operator:'Equal to',value:'United Kingdom'}] },
   // Shared with me (role/group)
-  { id:5, name:'Org Headcount Annual',       metric:'headcount', dept:'All departments', agg:'monthly', horizon:12, ci:95, source:'Org Metrics',       owner:'HR Analytics Team', shared:true, role:true, updatedDays:1,  color:'#2458a0', dotColor:'#2458a0' },
-  { id:6, name:'Tenure Trend Forecast',      metric:'tenure',    dept:'All departments', agg:'monthly', horizon:12, ci:95, source:'Report Designer',   owner:'People Ops',        shared:true, role:false,updatedDays:5,  color:'#0ea472', dotColor:'#0ea472' },
-  { id:7, name:'Finance Headcount Q1',       metric:'headcount', dept:'Finance',         agg:'quarterly',horizon:2, ci:90, source:'Report Designer',   owner:'Finance Team',      shared:true, role:false,updatedDays:10, color:'#f59e0b', dotColor:'#f59e0b' },
-  { id:8, name:'Engagement Score Outlook',   metric:'engagement',dept:'All departments', agg:'monthly', horizon:6,  ci:95, source:'Insight',           owner:'HR Analytics Team', shared:true, role:true, updatedDays:3,  color:'#6366f1', dotColor:'#6366f1' },
+  { id:5, name:'Org Headcount Annual',       metric:'headcount', dept:'All departments', agg:'monthly', horizon:12, ci:95, source:'Org Metrics',       owner:'HR Analytics Team', shared:true, role:true, updatedDays:1,  color:'#2458a0', dotColor:'#2458a0', filters:[] },
+  { id:6, name:'Tenure Trend Forecast',      metric:'tenure',    dept:'All departments', agg:'monthly', horizon:12, ci:95, source:'Report Designer',   owner:'People Ops',        shared:true, role:false,updatedDays:5,  color:'#0ea472', dotColor:'#0ea472', filters:[] },
+  { id:7, name:'Finance Headcount Q1',       metric:'headcount', dept:'Finance',         agg:'quarterly',horizon:2, ci:90, source:'Report Designer',   owner:'Finance Team',      shared:true, role:false,updatedDays:10, color:'#f59e0b', dotColor:'#f59e0b', filters:[{field:'Department',is:'is',operator:'Equal to',value:'Finance'}] },
+  { id:8, name:'Engagement Score Outlook',   metric:'engagement',dept:'All departments', agg:'monthly', horizon:6,  ci:95, source:'Insight',           owner:'HR Analytics Team', shared:true, role:true, updatedDays:3,  color:'#6366f1', dotColor:'#6366f1', filters:[] },
 ];
 
 const METRICS_CFG = {
@@ -512,8 +597,15 @@ function renderDetail() {
         <!-- horizon -->
         <div class="p-card">
           <div class="p-title">Forecast horizon</div>
-          <div class="toggle-row" id="horizRow" style="margin-bottom:10px;">${horizonBtnsHTML(f.agg, f.horizon)}</div>
-          <div style="font-size:10.5px;color:var(--text3);line-height:1.55;margin-bottom:10px;" id="horizNote">Max: <strong>${isQ?'4 quarters':'12 months'}</strong>. Forecast runs from the date of creation.</div>
+          <div class="fgroup" style="margin-bottom:10px;">
+            <label class="field-label" id="horizDropLabel">${isQ ? 'Quarters' : 'Months'}</label>
+            <select id="horizRow" onchange="setHorizonFromSelect(this.value)">
+              ${isQ
+                ? [1,2,3,4].map(n=>`<option value="${n}" ${n===f.horizon?'selected':''}>${n} Quarter${n>1?'s':''}</option>`).join('')
+                : [1,2,3,4,5,6,7,8,9,10,11,12].map(n=>`<option value="${n}" ${n===f.horizon?'selected':''}>${n} Month${n>1?'s':''}</option>`).join('')
+              }
+            </select>
+          </div>
           <label class="field-label">Confidence interval</label>
           <div class="ci-row">
             <input type="range" min="80" max="99" value="${f.ci}" id="ciSlider" oninput="document.getElementById('ciVal').textContent=this.value+'%';updateAndRender()">
@@ -529,6 +621,15 @@ function renderDetail() {
           <div class="adj-btns">
             <button class="btn btn-outline btn-sm" onclick="clearAdj()">Clear all</button>
             <button class="btn btn-accent btn-sm" onclick="applyAdj()">Apply</button>
+          </div>
+        </div>
+        <!-- Filters (read-only) -->
+        <div class="p-card">
+          <div class="p-title">Filters applied</div>
+          <div class="filter-readonly-list" id="detailFilterList">
+            ${(f.filters && f.filters.length > 0)
+              ? f.filters.map(fl => `<div class="filter-readonly-row"><span class="filter-readonly-if">If</span><span class="filter-readonly-field">${fl.field}</span><span class="filter-readonly-op">${fl.is} ${fl.operator}</span><span class="filter-readonly-val">${fl.value}</span></div>`).join('')
+              : '<div style="font-size:11px;color:var(--text3);font-style:italic;">No filters applied</div>'}
           </div>
         </div>
       </div>
@@ -575,32 +676,35 @@ function renderDetail() {
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────
-function horizonBtnsHTML(agg, activeH) {
+function horizonOptionsHTML(agg, activeH) {
   if (agg === 'quarterly') {
-    return [1,2,3,4].map(n=>`<button class="tgl-btn${n===activeH?' active':''}" onclick="setHorizon(${n},this)">${n}Q</button>`).join('');
+    return [1,2,3,4].map(n=>`<option value="${n}" ${n===activeH?'selected':''}>${n} Quarter${n>1?'s':''}</option>`).join('');
   }
-  return [3,6,12].map(n=>`<button class="tgl-btn${n===activeH?' active':''}" onclick="setHorizon(${n},this)">${n}M</button>`).join('');
+  return [1,2,3,4,5,6,7,8,9,10,11,12].map(n=>`<option value="${n}" ${n===activeH?'selected':''}>${n} Month${n>1?'s':''}</option>`).join('');
 }
 
 function setAgg(agg, el) {
   currentFc.agg = agg;
-  currentFc.horizon = agg==='quarterly'?4:12;
+  currentFc.horizon = agg==='quarterly' ? 4 : 12;
   adjValues = Array(currentFc.horizon).fill(0);
   const isQ = agg==='quarterly';
   document.querySelectorAll('#aggRow .tgl-btn').forEach(b=>b.classList.remove('active'));
   el.classList.add('active');
-  document.getElementById('horizRow').innerHTML = horizonBtnsHTML(agg, currentFc.horizon);
-  document.getElementById('horizNote').innerHTML = `Max: <strong>${isQ?'4 quarters':'12 months'}</strong>. Forecast runs from the date of creation.`;
+  const horizSel = document.getElementById('horizRow');
+  if (horizSel) {
+    horizSel.innerHTML = horizonOptionsHTML(agg, currentFc.horizon);
+  }
+  const horizLbl = document.getElementById('horizDropLabel');
+  if (horizLbl) horizLbl.textContent = isQ ? 'Quarters' : 'Months';
   document.getElementById('dataBanner').innerHTML = `<svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg><span>36 months available — forecast ready (min. ${isQ?33:27} required)</span>`;
   buildAdjRows(); renderChart();
 }
 
-function setHorizon(n, el) {
-  currentFc.horizon = n;
-  adjValues = Array(n).fill(0);
-  document.querySelectorAll('#horizRow .tgl-btn').forEach(b=>b.classList.remove('active'));
-  el.classList.add('active');
-  buildAdjRows(); renderChart();
+function setHorizonFromSelect(val) {
+  currentFc.horizon = parseInt(val);
+  adjValues = Array(currentFc.horizon).fill(0);
+  buildAdjRows();
+  renderChart();
 }
 
 function toggleChip(el) {
@@ -723,59 +827,84 @@ function renderChart(){
 // ─── New forecast wizard ──────────────────────────────────────────────────
 function showNewWizard() {
   activeId = null;
+  wizardFilters = [];
   renderList();
   document.getElementById('topbarCrumb').textContent = 'New forecast';
   document.getElementById('detailPanel').innerHTML = `
   <div class="wizard">
     <div class="wizard-card">
       <div class="wizard-title">Create a new forecast</div>
-      <div class="wizard-sub">Configure your forecast below. illumin8HR uses ML.Net SSA to predict future values based on historical data for the selected metric only.</div>
-      <div class="wizard-field">
-        <label>Forecast name</label>
-        <input type="text" placeholder="e.g. Headcount 12M — All Departments" id="wName">
+
+      <div class="wizard-tabs">
+        <button class="wizard-tab active" onclick="switchWizardTab('summary',this)">Summary</button>
+        <button class="wizard-tab" onclick="switchWizardTab('filters',this)">Filters</button>
       </div>
-      <div class="wizard-field">
-        <label>Metric</label>
-        <select id="wMetric">
-          <option value="headcount">Headcount</option>
-          <option value="attrition">Attrition rate (%)</option>
-          <option value="hires">New hires</option>
-          <option value="tenure">Avg tenure (months)</option>
-          <option value="engagement">Engagement score</option>
-        </select>
-      </div>
-      <div class="wizard-field">
-        <label>Generated from</label>
-        <select id="wSource">
-          <option>Report Designer</option>
-          <option>Insight</option>
-          <option>My Metrics</option>
-          <option>Organisation Metrics</option>
-          <option>Dashboard Report</option>
-        </select>
-      </div>
-      <div class="wizard-field">
-        <label>Aggregation</label>
-        <div class="toggle-row">
-          <button class="tgl-btn active" id="wAggM" onclick="document.getElementById('wAggM').classList.add('active');document.getElementById('wAggQ').classList.remove('active');document.getElementById('wHorizonNote').textContent='Max 12 months';">Monthly</button>
-          <button class="tgl-btn" id="wAggQ" onclick="document.getElementById('wAggQ').classList.add('active');document.getElementById('wAggM').classList.remove('active');document.getElementById('wHorizonNote').textContent='Max 4 quarters';">Quarterly</button>
+
+      <!-- Summary tab -->
+      <div class="wizard-tab-panel active" id="wTab-summary">
+        <div class="wizard-field">
+          <label>Forecast name</label>
+          <input type="text" placeholder="e.g. Headcount 12M — All Departments" id="wName">
+        </div>
+        <div class="wizard-field">
+          <label>Metric</label>
+          <select id="wMetric">
+            <option value="headcount">Headcount</option>
+            <option value="attrition">Attrition rate (%)</option>
+            <option value="hires">New hires</option>
+            <option value="tenure">Avg tenure (months)</option>
+            <option value="engagement">Engagement score</option>
+          </select>
+        </div>
+        <div class="wizard-field">
+          <label>View</label>
+          <select id="wSource">
+            <option>Auto select</option>
+          </select>
+        </div>
+        <div class="wizard-field">
+          <label>Aggregation</label>
+          <div class="toggle-row">
+            <button class="tgl-btn active" id="wAggM" onclick="setWizardAgg('monthly')">Monthly</button>
+            <button class="tgl-btn" id="wAggQ" onclick="setWizardAgg('quarterly')">Quarterly</button>
+          </div>
+        </div>
+        <div class="wizard-field">
+          <label id="wHorizLabel">Forecast horizon (months)</label>
+          <select id="wHorizon">
+            <option value="1">1 Month</option>
+            <option value="2">2 Months</option>
+            <option value="3">3 Months</option>
+            <option value="4">4 Months</option>
+            <option value="5">5 Months</option>
+            <option value="6">6 Months</option>
+            <option value="7">7 Months</option>
+            <option value="8">8 Months</option>
+            <option value="9">9 Months</option>
+            <option value="10">10 Months</option>
+            <option value="11">11 Months</option>
+            <option value="12" selected>12 Months</option>
+          </select>
+        </div>
+        <div class="wizard-field">
+          <label>Department</label>
+          <select>
+            <option>All departments</option><option>Engineering</option><option>Sales</option><option>Operations</option><option>Finance</option><option>HR &amp; People</option>
+          </select>
         </div>
       </div>
-      <div class="wizard-field">
-        <label>Forecast horizon</label>
-        <div class="toggle-row">
-          <button class="tgl-btn" onclick="selWH(3,this,false)">3M</button>
-          <button class="tgl-btn" onclick="selWH(6,this,false)">6M</button>
-          <button class="tgl-btn active" onclick="selWH(12,this,false)">12M</button>
+
+      <!-- Filters tab -->
+      <div class="wizard-tab-panel" id="wTab-filters">
+        <div class="filter-list" id="wFilterList">
+          <div class="filter-empty" id="wFilterEmpty">No filters added yet.</div>
         </div>
-        <div class="wizard-note" id="wHorizonNote">Max 12 months · Only 12 months of history will be displayed on the chart</div>
+        <button class="btn-add-filter" onclick="openAddFilterModal()">
+          <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 4v16m-8-8h16"/></svg>
+          Add filter
+        </button>
       </div>
-      <div class="wizard-field">
-        <label>Department</label>
-        <select>
-          <option>All departments</option><option>Engineering</option><option>Sales</option><option>Operations</option><option>Finance</option><option>HR &amp; People</option>
-        </select>
-      </div>
+
       <div class="wizard-actions">
         <button class="btn btn-ghost" onclick="cancelWizard()">Cancel</button>
         <button class="btn btn-primary" onclick="createForecast()">
@@ -787,7 +916,116 @@ function showNewWizard() {
   </div>`;
 }
 
-function selWH(n,el,isQ){document.querySelectorAll('.wizard .toggle-row:last-of-type .tgl-btn').forEach(b=>b.classList.remove('active'));el.classList.add('active');}
+function switchWizardTab(tab, el) {
+  document.querySelectorAll('.wizard-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.wizard-tab-panel').forEach(p => p.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('wTab-' + tab).classList.add('active');
+}
+
+// ─── Filter field→value map ───────────────────────────────────────────────
+const FILTER_VALUES = {
+  'Department':      ['All departments','Engineering','Sales','Operations','Finance','HR & People'],
+  'Location':        ['All locations','United Kingdom','United States','EMEA','APAC'],
+  'Employment type': ['Full-time','Part-time','Contract','Temporary'],
+  'Job level':       ['Junior','Mid','Senior','Lead','Manager','Director','VP','C-Suite'],
+  'Gender':          ['Male','Female','Non-binary','Prefer not to say'],
+  'Age band':        ['Under 25','25–34','35–44','45–54','55–64','65+'],
+  'Tenure band':     ['0–1 years','1–3 years','3–5 years','5–10 years','10+ years'],
+  'Manager':         ['Direct reports only','All reports'],
+  'Cost centre':     ['CC-001','CC-002','CC-003','CC-004','CC-005'],
+};
+
+let wizardFilters = [];
+
+function openAddFilterModal() {
+  document.getElementById('afField').value = '';
+  document.getElementById('afValue').innerHTML = '<option value="">Select a value</option>';
+  document.getElementById('afModalBg').style.display = 'flex';
+}
+
+function closeAddFilterModal(e) {
+  if (!e || e.target === document.getElementById('afModalBg')) {
+    document.getElementById('afModalBg').style.display = 'none';
+  }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  const afField = document.getElementById('afField');
+  if (afField) {
+    afField.addEventListener('change', function() {
+      const vals = FILTER_VALUES[this.value] || [];
+      const afVal = document.getElementById('afValue');
+      afVal.innerHTML = '<option value="">Select a value</option>' +
+        vals.map(v => `<option value="${v}">${v}</option>`).join('');
+    });
+  }
+});
+
+// Fallback for dynamic field population (field select may be inside modal rendered after DOMContentLoaded)
+function onAfFieldChange() {
+  const field = document.getElementById('afField').value;
+  const vals = FILTER_VALUES[field] || [];
+  const afVal = document.getElementById('afValue');
+  afVal.innerHTML = '<option value="">Select a value</option>' +
+    vals.map(v => `<option value="${v}">${v}</option>`).join('');
+}
+
+function confirmAddFilter() {
+  const field    = document.getElementById('afField').value;
+  const is       = document.getElementById('afIs').value;
+  const operator = document.getElementById('afOperator').value;
+  const value    = document.getElementById('afValue').value;
+  if (!field || !value) {
+    document.getElementById('afField').style.borderColor = field ? '' : 'var(--danger)';
+    document.getElementById('afValue').style.borderColor = value ? '' : 'var(--danger)';
+    return;
+  }
+  wizardFilters.push({ field, is, operator, value });
+  renderWizardFilterList();
+  document.getElementById('afModalBg').style.display = 'none';
+}
+
+function renderWizardFilterList() {
+  const list  = document.getElementById('wFilterList');
+  const empty = document.getElementById('wFilterEmpty');
+  if (!list) return;
+  if (wizardFilters.length === 0) {
+    list.innerHTML = '<div class="filter-empty" id="wFilterEmpty">No filters added yet.</div>';
+    return;
+  }
+  list.innerHTML = wizardFilters.map((f, i) => `
+    <div class="filter-row">
+      <span class="filter-row-if">If</span>
+      <span class="filter-row-field">${f.field}</span>
+      <span class="filter-row-op">${f.is} ${f.operator}</span>
+      <span class="filter-row-val">${f.value}</span>
+      <button class="filter-remove" onclick="removeWizardFilter(${i})" title="Remove">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+    </div>`).join('');
+}
+
+function removeWizardFilter(i) {
+  wizardFilters.splice(i, 1);
+  renderWizardFilterList();
+}
+
+function setWizardAgg(agg) {
+  const isQ = agg === 'quarterly';
+  document.getElementById('wAggM').classList.toggle('active', !isQ);
+  document.getElementById('wAggQ').classList.toggle('active', isQ);
+  const sel = document.getElementById('wHorizon');
+  const lbl = document.getElementById('wHorizLabel');
+  if (sel) {
+    if (isQ) {
+      sel.innerHTML = [1,2,3,4].map(n=>`<option value="${n}" ${n===4?'selected':''}>${n} Quarter${n>1?'s':''}</option>`).join('');
+    } else {
+      sel.innerHTML = [1,2,3,4,5,6,7,8,9,10,11,12].map(n=>`<option value="${n}" ${n===12?'selected':''}>${n} Month${n>1?'s':''}</option>`).join('');
+    }
+  }
+  if (lbl) lbl.textContent = 'Forecast horizon (' + (isQ ? 'quarters' : 'months') + ')';
+}
 
 function cancelWizard(){
   document.getElementById('detailPanel').innerHTML='<div class="empty-state" id="emptyState"><div class="empty-icon"><svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" color="var(--brand-mid)"><path d="M2.25 18L9 11.25l4.306 4.306a11.95 11.95 0 015.814-5.518l2.74-1.22m0 0l-5.94-2.281m5.94 2.28l-2.28 5.941"/></svg></div><div class="empty-title">Select a forecast</div><div class="empty-sub">Choose a forecast from the list to view its chart and details, or create a new one using the button above.</div><button class="btn btn-primary" onclick="showNewWizard()"><svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path d="M12 4v16m-8-8h16"/></svg>New Forecast</button></div>';
@@ -798,7 +1036,8 @@ function createForecast(){
   const name = document.getElementById('wName').value.trim() || 'New Forecast';
   const metric = document.getElementById('wMetric').value;
   const isQ = document.getElementById('wAggQ').classList.contains('active');
-  const newFc = {id:Date.now(),name,metric,dept:'All departments',agg:isQ?'quarterly':'monthly',horizon:isQ?4:12,ci:95,source:document.getElementById('wSource').value,owner:'me',shared:false,updatedDays:0,color:'#2458a0',dotColor:'#2458a0'};
+  const horizonVal = parseInt(document.getElementById('wHorizon').value) || (isQ ? 4 : 12);
+  const newFc = {id:Date.now(),name,metric,dept:'All departments',agg:isQ?'quarterly':'monthly',horizon:horizonVal,ci:95,source:document.getElementById('wSource').value,owner:'me',shared:false,updatedDays:0,color:'#2458a0',dotColor:'#2458a0',filters:[...wizardFilters]};
   FORECASTS.unshift(newFc);
   selectFc(newFc.id);
 }
