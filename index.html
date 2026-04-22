@@ -306,8 +306,7 @@
       <span class="topbar-sep">/</span>
       <span class="topbar-crumb" id="topbarCrumb">All forecasts</span>
       <div class="topbar-right">
-        <span class="tag tag-mono">SSA · ML.Net</span>
-        <span class="tag tag-green">Seasonal</span>
+
       </div>
     </div>
 
@@ -402,7 +401,10 @@
 <!-- ── Modal ───────────────────────────────────────────────────────────────── -->
 <div class="modal-bg" id="modalBg" onclick="closeMod(event)">
   <div class="modal">
-    <div class="modal-ttl" id="modTitle"></div>
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:5px;">
+      <div class="modal-ttl" id="modTitle"></div>
+      <button style="width:26px;height:26px;border:none;background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;border-radius:var(--r-sm);color:var(--text3);flex-shrink:0;margin-left:8px;" onclick="closeMod()"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12"/></svg></button>
+    </div>
     <div class="modal-sub" id="modSub"></div>
     <div id="modBody"></div>
     <div class="modal-foot" id="modFoot"></div>
@@ -413,29 +415,29 @@
 // ─── Forecast data ────────────────────────────────────────────────────────
 const FORECASTS = [
   // Mine
-  { id:1, name:'Headcount — All Departments', metric:'headcount', dept:'All departments', agg:'monthly', horizon:12, ci:95, source:'Report Designer', owner:'me',  shared:false, updatedDays:0,  color:'#2458a0', dotColor:'#2458a0', filters:[{field:'Department',is:'is',operator:'Equal to',value:'All departments'},{field:'Employment type',is:'is',operator:'Equal to',value:'Full-time'}] },
-  { id:2, name:'Engineering Attrition Risk', metric:'attrition',  dept:'Engineering',     agg:'monthly', horizon:6,  ci:90, source:'Insight',         owner:'me',  shared:false, updatedDays:2,  color:'#0ea472', dotColor:'#0ea472', filters:[{field:'Department',is:'is',operator:'Equal to',value:'Engineering'}] },
-  { id:3, name:'Quarterly New Hires Q1–Q4',  metric:'hires',     dept:'All departments', agg:'quarterly',horizon:4,  ci:95, source:'Dashboard Report', owner:'me',  shared:false, updatedDays:7,  color:'#f59e0b', dotColor:'#f59e0b', filters:[] },
-  { id:4, name:'Sales Headcount 6M',         metric:'headcount', dept:'Sales',            agg:'monthly', horizon:6,  ci:80, source:'My Metrics',       owner:'me',  shared:false, updatedDays:14, color:'#6366f1', dotColor:'#6366f1', filters:[{field:'Department',is:'is',operator:'Equal to',value:'Sales'},{field:'Location',is:'is',operator:'Equal to',value:'United Kingdom'}] },
+  { id:1, name:'Headcount — All Departments', metric:'headcount', dept:'All departments', agg:'monthly', horizon:12, ci:95, source:'Report Designer', owner:'me',  shared:false, updatedDays:0,  color:'#2458a0', dotColor:'#2458a0', filters:[{field:'Department',is:'is',operator:'Equal to',value:'All departments'},{field:'Employment type',is:'is',operator:'Equal to',value:'Full-time'}], sharedWith:['HR Analytics Team','Senior Leadership'] },
+  { id:2, name:'Engineering Attrition Risk', metric:'attrition',  dept:'Engineering',     agg:'monthly', horizon:6,  ci:90, source:'Insight',         owner:'me',  shared:false, updatedDays:2,  color:'#0ea472', dotColor:'#0ea472', filters:[{field:'Department',is:'is',operator:'Equal to',value:'Engineering'}], sharedWith:['Mark Davies','Priya Patel'] },
+  { id:3, name:'Quarterly New Hires Q1–Q4',  metric:'hires',     dept:'All departments', agg:'quarterly',horizon:4,  ci:95, source:'Dashboard Report', owner:'me',  shared:false, updatedDays:7,  color:'#f59e0b', dotColor:'#f59e0b', filters:[], sharedWith:[] },
+  { id:4, name:'Sales Headcount 6M',         metric:'headcount', dept:'Sales',            agg:'monthly', horizon:6,  ci:80, source:'My Metrics',       owner:'me',  shared:false, updatedDays:14, color:'#6366f1', dotColor:'#6366f1', filters:[{field:'Department',is:'is',operator:'Equal to',value:'Sales'},{field:'Location',is:'is',operator:'Equal to',value:'United Kingdom'}], sharedWith:['James Wilson'] },
   // Shared with me (role/group)
-  { id:5, name:'Org Headcount Annual',       metric:'headcount', dept:'All departments', agg:'monthly', horizon:12, ci:95, source:'Org Metrics',       owner:'HR Analytics Team', shared:true, role:true, updatedDays:1,  color:'#2458a0', dotColor:'#2458a0', filters:[] },
-  { id:6, name:'Tenure Trend Forecast',      metric:'tenure',    dept:'All departments', agg:'monthly', horizon:12, ci:95, source:'Report Designer',   owner:'People Ops',        shared:true, role:false,updatedDays:5,  color:'#0ea472', dotColor:'#0ea472', filters:[] },
-  { id:7, name:'Finance Headcount Q1',       metric:'headcount', dept:'Finance',         agg:'quarterly',horizon:2, ci:90, source:'Report Designer',   owner:'Finance Team',      shared:true, role:false,updatedDays:10, color:'#f59e0b', dotColor:'#f59e0b', filters:[{field:'Department',is:'is',operator:'Equal to',value:'Finance'}] },
-  { id:8, name:'Engagement Score Outlook',   metric:'engagement',dept:'All departments', agg:'monthly', horizon:6,  ci:95, source:'Insight',           owner:'HR Analytics Team', shared:true, role:true, updatedDays:3,  color:'#6366f1', dotColor:'#6366f1', filters:[] },
+  { id:5, name:'Org Headcount Annual',       metric:'headcount', dept:'All departments', agg:'monthly', horizon:12, ci:95, source:'Org Metrics',       owner:'HR Analytics Team', shared:true, role:true, updatedDays:1,  color:'#2458a0', dotColor:'#2458a0', filters:[], sharedWith:['All Users'] },
+  { id:6, name:'Tenure Trend Forecast',      metric:'tenure',    dept:'All departments', agg:'monthly', horizon:12, ci:95, source:'Report Designer',   owner:'People Ops',        shared:true, role:false,updatedDays:5,  color:'#0ea472', dotColor:'#0ea472', filters:[], sharedWith:['HR Analytics Team'] },
+  { id:7, name:'Finance Headcount Q1',       metric:'headcount', dept:'Finance',         agg:'quarterly',horizon:2, ci:90, source:'Report Designer',   owner:'Finance Team',      shared:true, role:false,updatedDays:10, color:'#f59e0b', dotColor:'#f59e0b', filters:[{field:'Department',is:'is',operator:'Equal to',value:'Finance'}], sharedWith:['Senior Leadership','Finance Team'] },
+  { id:8, name:'Engagement Score Outlook',   metric:'engagement',dept:'All departments', agg:'monthly', horizon:6,  ci:95, source:'Insight',           owner:'HR Analytics Team', shared:true, role:true, updatedDays:3,  color:'#6366f1', dotColor:'#6366f1', filters:[], sharedWith:['All Users'] },
 ];
 
 const METRICS_CFG = {
-  headcount:  { label:'Headcount',              base:2847, trend:18,   accuracy:'91.4%', insights:[{v:'+18/mo',t:'Peak month: March. Seasonal uplift from annual grad cycle detected in SSA decomposition.'},{v:'Q1 risk',t:'Seasonal dip expected Jan–Feb. SSA detects post-bonus exit pattern.'},{v:'±94',t:'95% CI width at 12-month horizon based on 36 months of historical data.'},{v:'',t:'Cumulative My Adjustments vs baseline.'}] },
-  attrition:  { label:'Attrition rate (%)',     base:12.4, trend:-0.3, accuracy:'87.2%', insights:[{v:'Oct peak',t:'Attrition peaks Oct–Nov. SSA detects consistent pre-year-end exit cycle.'},{v:'Q1 drop',t:'Post-bonus stabilisation: attrition reduces Jan–Mar.'},{v:'±1.8%',t:'CI narrows within 3-month horizon for this metric.'},{v:'',t:'Cumulative My Adjustments vs baseline.'}] },
-  hires:      { label:'New hires',              base:142,  trend:6,    accuracy:'84.6%', insights:[{v:'+34',t:'March hiring surge: campus grad cycle drives strong seasonal uplift.'},{v:'Jul–Aug dip',t:'Summer slowdown detected by SSA — consistent across last 3 years.'},{v:'±22',t:'Wider CI reflects higher monthly variance in hiring data.'},{v:'',t:'Cumulative My Adjustments vs baseline.'}] },
-  tenure:     { label:'Avg tenure (months)',    base:38,   trend:0.8,  accuracy:'93.1%', insights:[{v:'+2.1mo',t:'Avg tenure rising steadily — SSA trend component positive for 24+ months.'},{v:'Stable',t:'Narrowest CI of all metrics. Tenure is historically stable.'},{v:'±3.2mo',t:'95% CI at 12-month horizon. High model confidence.'},{v:'',t:'Cumulative My Adjustments vs baseline.'}] },
-  engagement: { label:'Engagement score',       base:74,   trend:0.5,  accuracy:'78.9%', insights:[{v:'Q2 dip',t:'Engagement dips post-performance review cycle each May.'},{v:'Q3 lift',t:'Recovery follows L&D programme launches — SSA seasonal component.'},{v:'±4.1',t:'Widest CI — survey-driven data has higher variance.'},{v:'',t:'Cumulative My Adjustments vs baseline.'}] },
+  headcount:  { label:'Headcount',              base:2847, trend:18,   accuracy:'91.4%', insights:[{v:'+18/mo',t:'Peak month: March. Uplift detected from annual grad cycle in historical data.'},{v:'Q1 risk',t:'Dip expected Jan–Feb based on post-bonus exit pattern in historic data.'},{v:'±94',t:'95% CI width at 12-month horizon based on 36 months of historical data.'},{v:'',t:'Cumulative Adjustments vs baseline.'}] },
+  attrition:  { label:'Attrition rate (%)',     base:12.4, trend:-0.3, accuracy:'87.2%', insights:[{v:'Oct peak',t:'Attrition peaks Oct–Nov. Consistent pre-year-end exit cycle in historical data.'},{v:'Q1 drop',t:'Post-bonus stabilisation: attrition reduces Jan–Mar historically.'},{v:'±1.8%',t:'CI narrows within 3-month horizon for this metric.'},{v:'',t:'Cumulative Adjustments vs baseline.'}] },
+  hires:      { label:'New hires',              base:142,  trend:6,    accuracy:'84.6%', insights:[{v:'+34',t:'March hiring surge: campus grad cycle drives strong uplift historically.'},{v:'Jul–Aug dip',t:'Summer slowdown — consistent pattern across last 3 years of data.'},{v:'±22',t:'Wider CI reflects higher monthly variance in hiring data.'},{v:'',t:'Cumulative Adjustments vs baseline.'}] },
+  tenure:     { label:'Avg tenure (months)',    base:38,   trend:0.8,  accuracy:'93.1%', insights:[{v:'+2.1mo',t:'Avg tenure rising steadily — positive trend for 24+ months.'},{v:'Stable',t:'Narrowest CI of all metrics. Tenure is historically stable.'},{v:'±3.2mo',t:'95% CI at 12-month horizon. High model confidence.'},{v:'',t:'Cumulative Adjustments vs baseline.'}] },
+  engagement: { label:'Engagement score',       base:74,   trend:0.5,  accuracy:'78.9%', insights:[{v:'Q2 dip',t:'Engagement dips post-performance review cycle each May historically.'},{v:'Q3 lift',t:'Recovery follows L&D programme launches based on historic patterns.'},{v:'±4.1',t:'Widest CI — survey-driven data has higher variance.'},{v:'',t:'Cumulative Adjustments vs baseline.'}] },
 };
 
 const HIST_M  = ['Dec 23','Jan 24','Feb 24','Mar 24','Apr 24','May 24','Jun 24','Jul 24','Aug 24','Sep 24','Oct 24','Nov 24'];
 const HIST_Q  = ['Q4 22','Q1 23','Q2 23','Q3 23','Q4 23','Q1 24','Q2 24','Q3 24'];
-const FC_M    = ['Dec 24','Jan 25','Feb 25','Mar 25','Apr 25','May 25','Jun 25','Jul 25','Aug 25','Sep 25','Oct 25','Nov 25'];
-const FC_Q    = ['Q1 25','Q2 25','Q3 25','Q4 25'];
+const FC_M    = ['Apr 26','May 26','Jun 26','Jul 26','Aug 26','Sep 26','Oct 26','Nov 26','Dec 26','Jan 27','Feb 27','Mar 27'];
+const FC_Q    = ['Q2 26','Q3 26','Q4 26','Q1 27'];
 const SH = [2,-6,-4,8,5,3,-1,-3,2,4,6,3];
 const SF = [3,-5,-3,9,4,2,-2,-4,1,3,5,2];
 const SHQ= [-3,5,-2,1,-3,5,-2,1];
@@ -524,13 +526,13 @@ function renderDetail() {
   <div class="fc-detail">
     <div class="fc-detail-topbar">
       <span class="fc-detail-name">${f.name}</span>
-      <span class="info-pill" onclick="openMod('ssa','')"><svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>How it works</span>
       <div style="width:0.5px;height:18px;background:var(--border-mid);margin:0 4px;"></div>
       ${f.owner==='me' ? `<button class="btn btn-ghost btn-sm" onclick="openMod('discuss',currentFc.name)"><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>Discuss</button>
-      <button class="btn btn-outline btn-sm" onclick="openMod('discard',currentFc.name)">Discard</button>
-      <button class="btn btn-primary btn-sm" onclick="openMod('save',currentFc.name)"><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21H7a2 2 0 01-2-2V5a2 2 0 012-2h7l5 5v11a2 2 0 01-2 2z"/><path d="M17 21v-8H7v8M7 3v5h8"/></svg>Save</button>`
+      <button class="btn btn-primary btn-sm" onclick="openMod('save',currentFc.name)"><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21H7a2 2 0 01-2-2V5a2 2 0 012-2h7l5 5v11a2 2 0 01-2 2z"/><path d="M17 21v-8H7v8M7 3v5h8"/></svg>Save</button>
+      <button style="margin-left:4px;width:28px;height:28px;border:none;background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;border-radius:var(--r-sm);color:var(--text3);transition:all .15s;" onmouseover="this.style.background='var(--surface)'" onmouseout="this.style.background='transparent'" onclick="cancelWizard()" title="Close"><svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12"/></svg></button>`
       : `<button class="btn btn-ghost btn-sm" onclick="openMod('discuss',currentFc.name)"><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>Discuss</button>
-      <span style="font-size:11px;color:var(--text3);padding:0 4px;">Shared by ${f.owner}</span>`}
+      <span style="font-size:11px;color:var(--text3);padding:0 4px;">Shared by ${f.owner}</span>
+      <button style="margin-left:4px;width:28px;height:28px;border:none;background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;border-radius:var(--r-sm);color:var(--text3);transition:all .15s;" onmouseover="this.style.background='var(--surface)'" onmouseout="this.style.background='transparent'" onclick="cancelWizard()" title="Close"><svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12"/></svg></button>`}
     </div>
     <div class="fc-detail-content">
       <!-- Controls -->
@@ -563,10 +565,10 @@ function renderDetail() {
         <!-- filters applied (read-only) -->
         <div class="p-card">
           <div class="p-title">Filters applied</div>
-          <div class="filter-readonly-list">
+          <div style="font-size:12px;color:var(--text);line-height:1.7;">
             ${(f.filters && f.filters.length > 0)
-              ? f.filters.map(fl => `<div class="filter-readonly-row"><span class="filter-readonly-if">If</span><span class="filter-readonly-field">${fl.field}</span><span class="filter-readonly-op">${fl.is} ${fl.operator}</span><span class="filter-readonly-val">${fl.value}</span></div>`).join('')
-              : '<div style="font-size:11px;color:var(--text3);font-style:italic;">No filters applied</div>'}
+              ? f.filters.map(fl => `<span style="display:block;">${fl.field} ${fl.is} ${fl.operator} <strong>${fl.value}</strong></span>`).join('')
+              : '<span style="font-size:11px;color:var(--text3);font-style:italic;">No filters applied</span>'}
           </div>
         </div>
         <!-- horizon -->
@@ -589,8 +591,8 @@ function renderDetail() {
         </div>
         <!-- adjustments -->
         <div class="p-card">
-          <div class="p-title">My Adjustments</div>
-          <div class="p-hint">Add adjustments to remaining periods. These appear as the <strong>My Adjustments</strong> line.</div>
+          <div class="p-title">Adjustments</div>
+          <div class="p-hint">Add adjustments to remaining periods. These appear as the <strong>Adjustments</strong> line.</div>
           <div class="adj-scroll" id="adjRows"></div>
           <div class="hr"></div>
           <div class="adj-btns">
@@ -598,13 +600,27 @@ function renderDetail() {
             <button class="btn btn-accent btn-sm" onclick="applyAdj()">Apply</button>
           </div>
         </div>
+        <!-- Shared with -->
+        <div class="p-card">
+          <div class="p-title">Shared with</div>
+          ${(f.sharedWith && f.sharedWith.length > 0)
+            ? `<div style="display:flex;flex-direction:column;gap:5px;">
+                ${f.sharedWith.map(u=>`<div style="display:flex;align-items:center;gap:8px;font-size:12px;">
+                  <div style="width:24px;height:24px;border-radius:50%;background:var(--brand-light);color:var(--brand-mid);display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;flex-shrink:0;">${u.split(' ').map(w=>w[0]).join('').substring(0,2).toUpperCase()}</div>
+                  <span style="color:var(--text);">${u}</span>
+                </div>`).join('')}
+              </div>
+              ${f.owner==='me' ? `<button class="btn btn-outline btn-sm" style="width:100%;margin-top:10px;font-size:11px;" onclick="openMod('edit',currentFc.name)">Edit sharing</button>` : ''}`
+            : `<div style="font-size:11px;color:var(--text3);font-style:italic;margin-bottom:${f.owner==='me'?'8px':'0'};">Not shared with anyone</div>
+              ${f.owner==='me' ? `<button class="btn btn-outline btn-sm" style="width:100%;font-size:11px;" onclick="openMod('edit',currentFc.name)">Add users / groups</button>` : ''}`}
+        </div>
       </div>
       <!-- Chart -->
       <div class="chart-area" id="chartArea">
         <div class="kpi-row">
           <div class="kpi-card"><div class="kpi-lbl">Starting value</div><div class="kpi-val" id="k1">—</div><div class="kpi-d neutral" id="k1d">—</div></div>
           <div class="kpi-card"><div class="kpi-lbl">Forecast end</div><div class="kpi-val" id="k2">—</div><div class="kpi-d" id="k2d">—</div></div>
-          <div class="kpi-card"><div class="kpi-lbl">My adjustments end</div><div class="kpi-val" id="k3">—</div><div class="kpi-d" id="k3d">—</div></div>
+          <div class="kpi-card"><div class="kpi-lbl">Adjustments end</div><div class="kpi-val" id="k3">—</div><div class="kpi-d" id="k3d">—</div></div>
           <div class="kpi-card"><div class="kpi-lbl">Model accuracy</div><div class="kpi-val" id="k4">—</div><div class="kpi-d neutral">Backtest vs actuals</div></div>
         </div>
         <div class="chart-card">
@@ -615,21 +631,18 @@ function renderDetail() {
             </div>
             <div class="chart-head-r">
               <div class="badge-row">
-                <span class="badge b-blue">SSA</span>
-                <span class="badge b-green">Seasonal adj.</span>
                 <span class="badge b-amber" id="ciBadge">95% CI</span>
               </div>
               <div class="legend-row">
                 <div class="leg-item"><span class="l-dash" style="border-color:var(--forecast);"></span>Forecast</div>
-                <div class="leg-item"><span class="l-dot" style="border-color:var(--adjusted);"></span>My Adjustments</div>
+                <div class="leg-item"><span class="l-dot" style="border-color:var(--adjusted);"></span>Adjustments</div>
                 <div class="leg-item"><span class="l-ci"></span>CI band</div>
               </div>
             </div>
           </div>
           <div class="chart-wrap"><canvas id="fcChart" role="img" aria-label="Forecasting chart showing actuals, forecast and adjustment lines"></canvas></div>
           <div class="chart-foot">
-            <span>Forecast from creation date · Horizon: <strong id="horizLbl">${horizLabel}</strong></span>
-            <span>ML.Net · SSA · Only this metric's historical data is used</span>
+            <span>Forecast horizon: <strong id="horizLbl">${horizLabel}</strong></span>
           </div>
         </div>
         <div class="insight-row" id="insightRow"></div>
@@ -749,7 +762,7 @@ function renderChart(){
   const k4=document.getElementById('k4');if(k4)k4.textContent=mc.accuracy;
 
   const ttl=document.getElementById('chartTtl');if(ttl)ttl.textContent=mc.label+' — '+dept;
-  const sub=document.getElementById('chartSub2');if(sub)sub.textContent='SSA seasonal decomposition · '+hLabel+' forecast from creation date';
+  const sub=document.getElementById('chartSub2');if(sub)sub.textContent=hLabel+' forecast';
   const cib=document.getElementById('ciBadge');if(cib)cib.textContent=ci+'% CI';
   const hl=document.getElementById('horizLbl');if(hl)hl.textContent=hLabel;
 
@@ -768,7 +781,7 @@ function renderChart(){
         {label:'CI upper',data:ciUpS,fill:'+1',backgroundColor:'rgba(36,88,160,0.09)',borderColor:'transparent',pointRadius:0,tension:0.35},
         {label:'CI lower',data:ciDnS,fill:false,borderColor:'transparent',pointRadius:0,tension:0.35},
         {label:'Forecast',data:fcSeries,borderColor:'#2458a0',backgroundColor:'transparent',borderWidth:2,borderDash:[6,4],pointRadius:3,pointBackgroundColor:'#2458a0',tension:0.35},
-        {label:'My Adjustments',data:adjSeries,borderColor:'#0ea472',backgroundColor:'transparent',borderWidth:2,borderDash:[3,3],pointRadius:3,pointBackgroundColor:'#0ea472',tension:0.35}
+        {label:'Adjustments',data:adjSeries,borderColor:'#0ea472',backgroundColor:'transparent',borderWidth:2,borderDash:[3,3],pointRadius:3,pointBackgroundColor:'#0ea472',tension:0.35}
       ]
     },
     options:{
@@ -799,8 +812,10 @@ function showNewWizard() {
   document.getElementById('detailPanel').innerHTML = `
   <div class="wizard">
     <div class="wizard-card">
-      <div class="wizard-title">Create a new forecast</div>
-
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;">
+        <div class="wizard-title" style="margin-bottom:0;">Create a new forecast</div>
+        <button style="width:28px;height:28px;border:none;background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;border-radius:var(--r-sm);color:var(--text3);transition:all .15s;" onmouseover="this.style.background='var(--surface)'" onmouseout="this.style.background='transparent'" onclick="cancelWizard()" title="Close"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12"/></svg></button>
+      </div>
       <div class="wizard-tabs">
         <button class="wizard-tab active" onclick="switchWizardTab('summary',this)">Summary</button>
         <button class="wizard-tab" onclick="switchWizardTab('filters',this)">Filters</button>
@@ -853,10 +868,19 @@ function showNewWizard() {
           </select>
         </div>
         <div class="wizard-field">
-          <label>Department</label>
-          <select>
-            <option>All departments</option><option>Engineering</option><option>Sales</option><option>Operations</option><option>Finance</option><option>HR &amp; People</option>
+          <label>Share with users / groups</label>
+          <select id="wShareWith" multiple style="height:110px;padding:4px;">
+            <option value="all_users">All Users</option>
+            <option value="hr_team">HR Analytics Team</option>
+            <option value="people_ops">People Ops</option>
+            <option value="finance_team">Finance Team</option>
+            <option value="senior_leadership">Senior Leadership</option>
+            <option value="sarah_johnson">Sarah Johnson</option>
+            <option value="mark_davies">Mark Davies</option>
+            <option value="priya_patel">Priya Patel</option>
+            <option value="james_wilson">James Wilson</option>
           </select>
+          <div style="font-size:10.5px;color:var(--text3);margin-top:5px;">Hold Ctrl / Cmd to select multiple</div>
         </div>
       </div>
 
@@ -872,7 +896,6 @@ function showNewWizard() {
       </div>
 
       <div class="wizard-actions">
-        <button class="btn btn-ghost" onclick="cancelWizard()">Cancel</button>
         <button class="btn btn-primary" onclick="createForecast()">
           <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path d="M12 4v16m-8-8h16"/></svg>
           Generate Forecast
@@ -1003,7 +1026,9 @@ function createForecast(){
   const metric = document.getElementById('wMetric').value;
   const isQ = document.getElementById('wAggQ').classList.contains('active');
   const horizonVal = parseInt(document.getElementById('wHorizon').value) || (isQ ? 4 : 12);
-  const newFc = {id:Date.now(),name,metric,dept:'All departments',agg:isQ?'quarterly':'monthly',horizon:horizonVal,ci:95,source:document.getElementById('wSource').value,owner:'me',shared:false,updatedDays:0,color:'#2458a0',dotColor:'#2458a0',filters:[...wizardFilters]};
+  const shareEl = document.getElementById('wShareWith');
+  const sharedWith = shareEl ? Array.from(shareEl.selectedOptions).map(o=>o.text) : [];
+  const newFc = {id:Date.now(),name,metric,dept:'All departments',agg:isQ?'quarterly':'monthly',horizon:horizonVal,ci:95,source:document.getElementById('wSource').value,owner:'me',shared:false,updatedDays:0,color:'#2458a0',dotColor:'#2458a0',filters:[...wizardFilters],sharedWith};
   FORECASTS.unshift(newFc);
   selectFc(newFc.id);
 }
@@ -1028,30 +1053,20 @@ document.addEventListener('click', closeAllDropdowns);
 
 // ─── Modals ───────────────────────────────────────────────────────────────
 function openMod(type, fcName) {
+  const shareOpts = '<option value="">— select —</option><option>All Users</option><option>HR Analytics Team</option><option>People Ops</option><option>Finance Team</option><option>Senior Leadership</option><option>Sarah Johnson</option><option>Mark Davies</option><option>Priya Patel</option><option>James Wilson</option>';
   const cfgs = {
-    edit:    {t:'Edit forecast',s:'Update the name or settings for "'+fcName+'".',b:`<div style="margin-bottom:12px;"><label style="display:block;font-size:11px;font-weight:600;color:var(--text2);margin-bottom:4px;text-transform:uppercase;letter-spacing:.03em;">Forecast name</label><input class="modal-input" type="text" value="${fcName}"></div><div><label style="display:block;font-size:11px;font-weight:600;color:var(--text2);margin-bottom:4px;text-transform:uppercase;letter-spacing:.03em;">Department</label><select style="width:100%;padding:8px 10px;font-size:12.5px;border:0.5px solid var(--border-mid);border-radius:var(--r-md);background:var(--surface);color:var(--text);font-family:var(--font);"><option>All departments</option><option>Engineering</option><option>Sales</option><option>Operations</option><option>Finance</option><option>HR &amp; People</option></select></div>`,f:`<button class="btn btn-ghost btn-sm" onclick="closeMod()">Cancel</button><button class="btn btn-primary btn-sm">Save changes</button>`},
-    save:    {t:'Save forecast',s:'Save changes to "'+fcName+'" for future reference.',b:`<input class="modal-input" type="text" value="${fcName}">`,f:`<button class="btn btn-ghost btn-sm" onclick="closeMod()">Cancel</button><button class="btn btn-primary btn-sm">Save</button>`},
-    discuss: {t:'Add a discussion note',s:'Add a comment about "'+fcName+'". Visible to all with access.',b:`<textarea placeholder="Add your observations…"></textarea>`,f:`<button class="btn btn-ghost btn-sm" onclick="closeMod()">Cancel</button><button class="btn btn-primary btn-sm">Post note</button>`},
-    discard: {t:'Discard changes?',s:'Unsaved changes to "'+fcName+'" will be lost.',b:'',f:`<button class="btn btn-ghost btn-sm" onclick="closeMod()">Keep editing</button><button class="btn btn-danger btn-sm">Discard</button>`},
-    delete:  {t:'Delete forecast?',s:'"'+fcName+'" and all its adjustments and notes will be permanently removed.',b:'',f:`<button class="btn btn-ghost btn-sm" onclick="closeMod()">Cancel</button><button class="btn btn-danger btn-sm">Delete permanently</button>`},
-    ssa:     {t:'How forecasting works',s:'illumin8HR uses ML.Net with Singular Spectrum Analysis (SSA) to generate forecast predictions.',
-      b:`<div style="font-size:12px;color:var(--text2);line-height:1.7;">
-        <p style="margin-bottom:10px;"><strong style="color:var(--text);">What is SSA?</strong> A model-free technique that decomposes time series into trend, seasonal components and noise — no assumptions about parametric form.</p>
-        <p style="margin-bottom:10px;"><strong style="color:var(--text);">What data is used?</strong> Only the historical values of the selected metric. No other metrics or correlations.</p>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px;">
-          <div style="background:var(--surface);border-radius:var(--r-md);padding:10px 12px;border:0.5px solid var(--border);">
-            <div style="font-size:10px;color:var(--text3);margin-bottom:2px;">Monthly</div>
-            <div style="font-size:20px;font-weight:600;color:var(--brand-mid);font-family:var(--mono);">27 months</div>
-            <div style="font-size:10px;color:var(--text3);">minimum data required</div>
-          </div>
-          <div style="background:var(--surface);border-radius:var(--r-md);padding:10px 12px;border:0.5px solid var(--border);">
-            <div style="font-size:10px;color:var(--text3);margin-bottom:2px;">Quarterly</div>
-            <div style="font-size:20px;font-weight:600;color:var(--brand-mid);font-family:var(--mono);">33 months</div>
-            <div style="font-size:10px;color:var(--text3);">minimum data required</div>
-          </div>
-        </div>
-      </div>`,
-      f:`<button class="btn btn-primary btn-sm" onclick="closeMod()">Got it</button>`},
+    edit:    {t:'Edit forecast',s:'Update the name or sharing for "'+fcName+'".',
+              b:`<div style="margin-bottom:12px;"><label style="display:block;font-size:11px;font-weight:600;color:var(--text2);margin-bottom:4px;text-transform:uppercase;letter-spacing:.03em;">Forecast name</label><input class="modal-input" type="text" value="${fcName}"></div><div><label style="display:block;font-size:11px;font-weight:600;color:var(--text2);margin-bottom:4px;text-transform:uppercase;letter-spacing:.03em;">Share with users / groups</label><select multiple style="width:100%;padding:4px;font-size:12.5px;border:0.5px solid var(--border-mid);border-radius:var(--r-md);background:var(--surface);color:var(--text);font-family:var(--font);height:120px;">${shareOpts}</select><div style="font-size:10.5px;color:var(--text3);margin-top:5px;">Hold Ctrl / Cmd to select multiple</div></div>`,
+              f:`<button class="btn btn-primary btn-sm">Save changes</button>`},
+    save:    {t:'Save forecast',s:'Save "'+fcName+'" for future reference.',
+              b:`<div style="margin-bottom:4px;"><label style="display:block;font-size:11px;font-weight:600;color:var(--text2);margin-bottom:4px;text-transform:uppercase;letter-spacing:.03em;">Forecast name</label><input class="modal-input" type="text" value="${fcName}"></div>`,
+              f:`<button class="btn btn-primary btn-sm">Save</button>`},
+    discuss: {t:'Add a discussion note',s:'Add a comment about "'+fcName+'". Visible to all with access.',
+              b:`<textarea placeholder="Add your observations…"></textarea>`,
+              f:`<button class="btn btn-primary btn-sm">Post note</button>`},
+    delete:  {t:'Delete forecast?',s:'"'+fcName+'" and all its adjustments and notes will be permanently removed.',
+              b:'',
+              f:`<button class="btn btn-danger btn-sm">Delete permanently</button>`},
   };
   const c=cfgs[type]||cfgs.save;
   document.getElementById('modTitle').textContent=c.t;
